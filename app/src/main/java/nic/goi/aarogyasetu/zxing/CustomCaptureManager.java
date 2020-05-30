@@ -47,13 +47,22 @@ public class CustomCaptureManager extends CaptureManager {
     private String getBarcodeImagePath(BarcodeResult rawResult) {
         String barcodeImagePath = null;
         Bitmap bmp = rawResult.getBitmap();
+        FileOutputStream outputStream = null;
         try {
             File bitmapFile = File.createTempFile(Constants.BAR_CODE_PATH, Constants.FILE_EXT, activity.getCacheDir());
-            FileOutputStream outputStream = new FileOutputStream(bitmapFile);
+            outputStream = new FileOutputStream(bitmapFile);
             bmp.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-            outputStream.close();
             barcodeImagePath = bitmapFile.getAbsolutePath();
         } catch (IOException e) {
+            // Add this -> Logger.w("Error creating barcode image", e);
+        } finally {
+            if(outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch(IOException e) {
+                    // Add this -> Logger.w("Error finalising barcode image", e);
+                }
+            }
         }
         return barcodeImagePath;
     }
